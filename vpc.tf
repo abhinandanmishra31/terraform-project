@@ -2,32 +2,24 @@ resource "aws_vpc" "my-vpc" {
   cidr_block       = var.vpc
   instance_tenancy = "default"
 
-  tags = {
-    Name =var.tags[0]
-  }
+  tags = local.common_tags
 }
 resource "aws_subnet" "uber-pub-subnet" {
   vpc_id     = aws_vpc.my-vpc.id
   cidr_block =var.subnet[0]
 
-  tags = {
-    Name =var.tags[1]
-  }
+tags = local.common_tags
 }
 resource "aws_subnet" "uber-private-subnet" {
   vpc_id     = aws_vpc.my-vpc.id
   cidr_block = var.subnet[1]
 
-  tags = {
-    Name = var.tags[2]
-  }
+ tags = local.common_tags
 }
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.my-vpc.id
 
-  tags = {
-    Name = var.tags[3]
-  }
+tags = local.common_tags
 }
 resource "aws_route_table" "uber-pub-route" {
   vpc_id = aws_vpc.my-vpc.id
@@ -37,9 +29,7 @@ resource "aws_route_table" "uber-pub-route" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
-  tags = {
-    Name = var.tags[4]
-  }
+tags = local.common_tags
 }
 resource "aws_key_pair" "uber-key" {
   key_name   = "uber"
@@ -53,9 +43,7 @@ resource "aws_nat_gateway" "uber-nat" {
   allocation_id = aws_eip.lp.id
   subnet_id     = aws_subnet.uber-pub-subnet.id
 
-  tags = {
-    Name = var.tags[5]
-  }
+  tags = local.common_tags
 }
 resource "aws_eip" "lp" {
   vpc      = true
@@ -67,9 +55,7 @@ resource "aws_route_table" "uber-private-route" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.uber-nat.id
   }
-  tags = {
-    Name = var.tags[6]
-  }
+  tags = local.common_tags
 }
 resource "aws_route_table_association" "uber-private-asso" {
   subnet_id      = aws_subnet.uber-private-subnet.id
@@ -356,7 +342,5 @@ resource "aws_instance" "web-server" {
   key_name   = "uber"
   subnet_id = aws_subnet.uber-pub-subnet.id
   vpc_security_group_ids =[aws_security_group.uber-web-server-sg.id]
-  tags = {
-    Name = var.tags[7]
-  }
+  tags = local.common_tags
 }
